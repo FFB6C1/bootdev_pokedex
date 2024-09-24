@@ -11,24 +11,46 @@ type command struct {
 	callback func() error
 }
 
-func GetCommands() map[string]command {
-	commands := map[string]command{
-		"help": {
+func GetCommandsList() []command {
+	commandsList := []command{
+		{
 			name:     "help",
 			desc:     "Displays a list of available commands.",
 			callback: commandHelp,
 		},
-		"exit": {
+		{
 			name:     "exit",
 			desc:     "Exits the program.",
 			callback: commandExit,
 		},
+		{
+			name:     "map",
+			desc:     "Displays the next page of locations.",
+			callback: commandMap,
+		},
+		{
+			name:     "mapb",
+			desc:     "Displays the previous page of locations.",
+			callback: commandMapB,
+		},
 	}
+
+	return commandsList
+}
+
+func GetCommands() map[string]command {
+	commandsList := GetCommandsList()
+
+	commands := map[string]command{}
+	for _, item := range commandsList {
+		commands[item.name] = item
+	}
+
 	return commands
 }
 
 func commandHelp() error {
-	commands := GetCommands()
+	commands := GetCommandsList()
 	fmt.Print("List of Commands:\n\n")
 	for _, command := range commands {
 		fmt.Printf("  %s: %s \n", command.name, command.desc)
@@ -38,5 +60,13 @@ func commandHelp() error {
 
 func commandExit() error {
 	os.Exit(0)
+	return nil
+}
+
+func commandMap() error {
+	return nil
+}
+
+func commandMapB() error {
 	return nil
 }
