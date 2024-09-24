@@ -8,7 +8,7 @@ import (
 type command struct {
 	name     string
 	desc     string
-	callback func() error
+	callback func(config) error
 }
 
 func GetCommandsList() []command {
@@ -49,7 +49,7 @@ func GetCommands() map[string]command {
 	return commands
 }
 
-func commandHelp() error {
+func commandHelp(_config config) error {
 	commands := GetCommandsList()
 	fmt.Print("List of Commands:\n\n")
 	for _, command := range commands {
@@ -58,15 +58,17 @@ func commandHelp() error {
 	return nil
 }
 
-func commandExit() error {
+func commandExit(_config config) error {
 	os.Exit(0)
 	return nil
 }
 
-func commandMap() error {
+func commandMap(_config config) error {
+	//url := config.mapNext
+	//data, err := apiInteraction.handleRequestAndResponse(url)
 	return nil
 }
 
-func commandMapB() error {
+func commandMapB(_config config) error {
 	return nil
 }
