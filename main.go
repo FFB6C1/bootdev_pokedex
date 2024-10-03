@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/FFB6C1/bootdev_pokedex/internal/pokecache"
@@ -21,9 +22,9 @@ func main() {
 	for {
 		fmt.Print("pokedex > ")
 		scanner.Scan()
-		input := scanner.Text()
-		if command, ok := commandMap[input]; ok {
-			err := command.callback(&config)
+		input := strings.Split(scanner.Text(), " ")
+		if command, ok := commandMap[input[0]]; ok {
+			err := command.callback(&config, input[1:]...)
 			if err != nil {
 				fmt.Println(err)
 			}

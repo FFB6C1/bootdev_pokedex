@@ -15,7 +15,7 @@ type config struct {
 func initiateConfig(cache pokecache.Cache) config {
 	return config{
 		cache:     cache,
-		mapAPI:    "/location-area/?",
+		mapAPI:    "/location-area/",
 		mapOffset: 0,
 		mapLimit:  20,
 		mapStep:   false,

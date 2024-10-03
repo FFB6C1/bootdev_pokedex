@@ -11,7 +11,7 @@ import (
 type command struct {
 	name     string
 	desc     string
-	callback func(*config) error
+	callback func(*config, ...string) error
 }
 
 func GetCommandsList() []command {
@@ -36,6 +36,11 @@ func GetCommandsList() []command {
 			desc:     "Displays the previous page of locations.",
 			callback: commandMapB,
 		},
+		{
+			name:     "explore",
+			desc:     "Explores a location. Usage: explore [area name].",
+			callback: commandExplore,
+		},
 	}
 
 	return commandsList
@@ -52,7 +57,9 @@ func GetCommands() map[string]command {
 	return commands
 }
 
-func commandHelp(_config *config) error {
+// Command Functions
+
+func commandHelp(_ *config, _ ...string) error {
 	commands := GetCommandsList()
 	fmt.Print("List of Commands:\n\n")
 	for _, command := range commands {
@@ -61,12 +68,12 @@ func commandHelp(_config *config) error {
 	return nil
 }
 
-func commandExit(_config *config) error {
+func commandExit(_ *config, _ ...string) error {
 	os.Exit(0)
 	return nil
 }
 
-func commandMap(config *config) error {
+func commandMap(config *config, _ ...string) error {
 	err := mapMove(config)
 	if err != nil {
 		return err
@@ -76,7 +83,7 @@ func commandMap(config *config) error {
 	return nil
 }
 
-func commandMapB(config *config) error {
+func commandMapB(config *config, _ ...string) error {
 	if config.mapStep {
 		config.mapOffset -= 40
 	} else {
@@ -95,8 +102,33 @@ func commandMapB(config *config) error {
 	return nil
 }
 
+func commandExplore(config *config, params ...string) error {
+	if len(params) == 0 {
+		fmt.Println("Where would you like to explore?")
+		fmt.Println("Use 'explore' followed by an area name, or use the help command.")
+		return nil
+	} else {
+		fmt.Println("Exploring: " + params[0] + "...")
+	}
+	url := config.mapAPI + params[0]
+	data, err := apiInteraction.AreaRequest(url, &config.cache)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	fmt.Println("Found Pokemon:")
+
+	for _, pokemon := range data.PokemonEncounters {
+		fmt.Println("- " + pokemon.Pokemon.Name)
+	}
+
+	return nil
+}
+
+// Helper Functions
+
 func mapMove(config *config) error {
-	url := config.mapAPI + "offset=" + strconv.Itoa(config.mapOffset) + "limit=" + strconv.Itoa(config.mapLimit)
+	url := config.mapAPI + "?offset=" + strconv.Itoa(config.mapOffset) + "limit=" + strconv.Itoa(config.mapLimit)
 	data, err := apiInteraction.LocationRequest(url, &config.cache)
 	if err != nil {
 		return err

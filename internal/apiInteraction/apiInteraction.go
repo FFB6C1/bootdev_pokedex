@@ -2,6 +2,7 @@ package apiInteraction
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -40,6 +41,45 @@ func LocationRequest(url string, cache *pokecache.Cache) (Location, error) {
 	unmarshalledData := Location{}
 	if err := json.Unmarshal(data, &unmarshalledData); err != nil {
 		return Location{}, err
+	}
+
+	return unmarshalledData, nil
+}
+
+func AreaRequest(url string, cache *pokecache.Cache) (Area, error) {
+	if data, ok := checkCache(url, cache); ok {
+		unmarshalledData := Area{}
+		err := json.Unmarshal(data, &unmarshalledData)
+		if err != nil {
+			return Area{}, err
+		}
+		return unmarshalledData, nil
+	}
+
+	req, err := makeRequest(baseURL + url)
+	if err != nil {
+		fmt.Println("request error")
+		return Area{}, err
+	}
+
+	res, err := getResponse(req)
+	if err != nil {
+		fmt.Println("response error")
+		return Area{}, err
+	}
+	defer res.Body.Close()
+
+	data, err := readResponse(res)
+	if err != nil {
+		return Area{}, err
+	}
+
+	cache.Add(url, data)
+
+	unmarshalledData := Area{}
+	if err := json.Unmarshal(data, &unmarshalledData); err != nil {
+		newErr := fmt.Errorf("Can't find pokemon! Make sure you spelled the area correctly. To find areas, use the map command!")
+		return Area{}, newErr
 	}
 
 	return unmarshalledData, nil
