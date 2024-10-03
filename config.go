@@ -1,13 +1,23 @@
 package main
 
+import (
+	"github.com/FFB6C1/bootdev_pokedex/internal/pokecache"
+)
+
 type config struct {
-	mapNext string
-	mapPrev string
+	cache     pokecache.Cache
+	mapAPI    string
+	mapOffset int
+	mapLimit  int
+	mapStep   bool // set to 'true' by map and 'false' by mapb, used for backtracking
 }
 
-func initiateConfig() config {
+func initiateConfig(cache pokecache.Cache) config {
 	return config{
-		mapNext: "https://pokeapi.co/api/v2/location-area/?offset=0limit=20",
-		mapPrev: "",
+		cache:     cache,
+		mapAPI:    "/location-area/?",
+		mapOffset: 0,
+		mapLimit:  20,
+		mapStep:   false,
 	}
 }
