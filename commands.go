@@ -41,6 +41,16 @@ func GetCommandsList() []command {
 			desc:     "Explores a location. Usage: explore [area name].",
 			callback: commandExplore,
 		},
+		{
+			name:     "catch",
+			desc:     "Attempt to catch a pokemon. Usage: catch [pokemon name].",
+			callback: commandCatch,
+		},
+		{
+			name:     "inspect",
+			desc:     "Get information on a caught pokemon. Usage: inspect [pokemon name]",
+			callback: commandInspect,
+		},
 	}
 
 	return commandsList
@@ -122,6 +132,42 @@ func commandExplore(config *config, params ...string) error {
 		fmt.Println("- " + pokemon.Pokemon.Name)
 	}
 
+	return nil
+}
+
+func commandCatch(config *config, params ...string) error {
+	if len(params) == 0 {
+		fmt.Println("Which pokemon would you like to catch? \nUse 'explore' to see what's there, or use 'help' to learn more.")
+		return nil
+	}
+	if config.pokedex.Check(params[0]) {
+		fmt.Printf("You've already caught a %s!\n", params[0])
+		return nil
+	}
+	url := config.pokemonAPI + params[0] + "/"
+	pokemonData, err := apiInteraction.PokemonRequest(url, &config.cache)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	if config.pokedex.Catch(pokemonData) {
+		fmt.Printf("%s caught! \n", pokemonData.Name)
+		return nil
+	}
+	fmt.Printf("%s escaped... \n", pokemonData.Name)
+	return nil
+}
+
+func commandInspect(config *config, params ...string) error {
+	if len(params) == 0 {
+		fmt.Println("Which pokemon do you want to inspect?")
+		return nil
+	}
+	if config.pokedex.Check(params[0]) == false {
+		fmt.Printf("You have not caught a %s! Check your spelling, if you think you have one.\n", params[0])
+		return nil
+	}
+	config.pokedex.Report(params[0])
 	return nil
 }
 

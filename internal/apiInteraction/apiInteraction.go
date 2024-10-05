@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/FFB6C1/bootdev_pokedex/internal/pokecache"
+	"github.com/FFB6C1/bootdev_pokedex/internal/pokedex"
 )
 
 func LocationRequest(url string, cache *pokecache.Cache) (Location, error) {
@@ -80,6 +81,41 @@ func AreaRequest(url string, cache *pokecache.Cache) (Area, error) {
 	if err := json.Unmarshal(data, &unmarshalledData); err != nil {
 		newErr := fmt.Errorf("Can't find pokemon! Make sure you spelled the area correctly. To find areas, use the map command!")
 		return Area{}, newErr
+	}
+
+	return unmarshalledData, nil
+}
+
+func PokemonRequest(url string, cache *pokecache.Cache) (pokedex.Pokemon, error) {
+	if data, ok := checkCache(url, cache); ok {
+		unmarshalledData := pokedex.Pokemon{}
+		err := json.Unmarshal(data, &unmarshalledData)
+		if err != nil {
+			return pokedex.Pokemon{}, err
+		}
+		return unmarshalledData, nil
+	}
+
+	req, err := makeRequest(baseURL + url)
+	if err != nil {
+		fmt.Println("Request Error")
+		return pokedex.Pokemon{}, err
+	}
+
+	res, err := getResponse(req)
+	if err != nil {
+		fmt.Println("Response Error")
+		return pokedex.Pokemon{}, err
+	}
+	defer res.Body.Close()
+
+	data, err := readResponse(res)
+	cache.Add(url, data)
+
+	unmarshalledData := pokedex.Pokemon{}
+	if err := json.Unmarshal(data, &unmarshalledData); err != nil {
+		newError := fmt.Errorf("Could not read pokemon data - did you use a valid pokemon name?")
+		return pokedex.Pokemon{}, newError
 	}
 
 	return unmarshalledData, nil
