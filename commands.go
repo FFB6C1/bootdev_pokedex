@@ -51,6 +51,11 @@ func GetCommandsList() []command {
 			desc:     "Get information on a caught pokemon. Usage: inspect [pokemon name]",
 			callback: commandInspect,
 		},
+		{
+			name:     "pokedex",
+			desc:     "Lists all captured pokemon",
+			callback: commandPokedex,
+		},
 	}
 
 	return commandsList
@@ -168,6 +173,11 @@ func commandInspect(config *config, params ...string) error {
 		return nil
 	}
 	config.pokedex.Report(params[0])
+	return nil
+}
+
+func commandPokedex(config *config, _ ...string) error {
+	config.pokedex.AllPokemon()
 	return nil
 }
 

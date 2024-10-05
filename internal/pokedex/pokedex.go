@@ -52,3 +52,13 @@ func (p Pokedex) Report(key string) {
 		fmt.Printf("	-%s\n", types.Type.Name)
 	}
 }
+
+func (p Pokedex) AllPokemon() {
+	if len(p.Pokemon) == 0 {
+		fmt.Println("No captured pokemon!")
+		return
+	}
+	for _, pokemon := range p.Pokemon {
+		fmt.Println("	- " + pokemon.Name)
+	}
+}
