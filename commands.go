@@ -3,15 +3,10 @@ package main
 import (
 	pokeapi "bootdev_pokedex/internal/apiInteraction"
 	"fmt"
+	"math/rand/v2"
 	"net/url"
 	"os"
 )
-
-type config struct {
-	next     string
-	previous string
-	client   pokeapi.Client
-}
 
 type cliCommand struct {
 	name        string
@@ -45,6 +40,11 @@ func getCommands() map[string]cliCommand {
 			name:        "explore",
 			description: "Displays a list of the pokemon available in an area. Usage: 'explore [area]",
 			callback:    commandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Try to catch a wild pokemon! Usage: 'catch [pokemon-name]'",
+			callback:    commandCatch,
 		},
 	}
 	return commands
@@ -117,6 +117,26 @@ func commandExplore(cfg *config, commands ...string) error {
 	return nil
 }
 
+func commandCatch(cfg *config, commands ...string) error {
+	if len(commands) == 0 {
+		fmt.Println("Please choose a pokemon to try to catch! Try exploring to see what's around.")
+		fmt.Println("Usage: catch [pokemon-name]")
+	}
+	pokemon, err := pokeapi.PokemonGet(commands[0], cfg.client)
+	if err != nil {
+		handleError("commandCatch", err, false)
+	}
+	fmt.Println("Throwing a Pokeball at " + commands[0] + "...")
+	catch := helperCatchTry(pokemon.BaseExperience)
+	if catch {
+		cfg.pokedex[commands[0]] = pokemon
+		fmt.Println("You caught " + commands[0] + "!")
+	} else {
+		fmt.Println("Oh no! It got away...")
+	}
+	return nil
+}
+
 // Helper Functions below here.
 
 func helperUpdateNextPrevious(cfg *config, data pokeapi.Location) {
@@ -134,4 +154,12 @@ func helperGetQuery(fullURL string) string {
 		handleError("helperURLSlicer", err, false)
 	}
 	return string("?" + parsed.RawQuery)
+}
+
+func helperCatchTry(difficulty int) bool {
+	if difficulty > 400 {
+		difficulty = 399
+	}
+	number := rand.IntN(400)
+	return number > difficulty
 }
