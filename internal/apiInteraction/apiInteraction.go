@@ -16,6 +16,15 @@ type Location struct {
 	} `json:"results"`
 }
 
+type LocationPokemon struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
 func apiGet(url string, client Client) ([]byte, error) {
 	if bytes, ok := client.cache.Get(url); ok {
 		return bytes, nil
@@ -33,9 +42,9 @@ func apiGet(url string, client Client) ([]byte, error) {
 	return body, nil
 }
 
-func LocationGet(url string, client Client) (Location, error) {
+func LocationGet(position string, client Client) (Location, error) {
 
-	fullURL := baseURL + locationURL + url
+	fullURL := baseURL + locationURL + position
 	locationJson, err := apiGet(fullURL, client)
 	if err != nil {
 		return Location{}, err
@@ -48,4 +57,20 @@ func LocationGet(url string, client Client) (Location, error) {
 	}
 
 	return locations, nil
+}
+
+func LocationExploreGet(area string, client Client) (LocationPokemon, error) {
+	fullURL := baseURL + locationURL + area
+	locationPokemonJson, err := apiGet(fullURL, client)
+	if err != nil {
+		return LocationPokemon{}, err
+	}
+
+	locationPokemon := LocationPokemon{}
+
+	if err = json.Unmarshal(locationPokemonJson, &locationPokemon); err != nil {
+		return LocationPokemon{}, err
+	}
+
+	return locationPokemon, nil
 }

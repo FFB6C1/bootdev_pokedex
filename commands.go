@@ -41,6 +41,11 @@ func getCommands() map[string]cliCommand {
 			description: "Displays the previous 20 locations in the Pokemon World",
 			callback:    commandMapB,
 		},
+		"explore": {
+			name:        "explore",
+			description: "Displays a list of the pokemon available in an area. Usage: 'explore [area]",
+			callback:    commandExplore,
+		},
 	}
 	return commands
 }
@@ -93,6 +98,26 @@ func commandMapB(cfg *config, _ ...string) error {
 	}
 	return nil
 }
+
+func commandExplore(cfg *config, commands ...string) error {
+	if len(commands) == 0 {
+		fmt.Println("Please choose a place to explore. Use 'map' to see some possible locations.\nUsage: 'explore [areaname]'")
+		return nil
+	}
+	locationPokemon, err := pokeapi.LocationExploreGet(commands[0], cfg.client)
+	if err != nil {
+		handleError("commandExplore", err, false)
+		return nil
+	}
+	fmt.Printf("Exploring %s...\n", commands[0])
+	fmt.Println("Found Pokemon:")
+	for _, pokemon := range locationPokemon.PokemonEncounters {
+		fmt.Println(" - " + pokemon.Pokemon.Name)
+	}
+	return nil
+}
+
+// Helper Functions below here.
 
 func helperUpdateNextPrevious(cfg *config, data pokeapi.Location) {
 	cfg.next = helperGetQuery(data.Next)
