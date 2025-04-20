@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	client := pokeapi.GetClient(2 * time.Second)
+	client := pokeapi.GetClient(2*time.Second, 5*time.Second)
 	config := config{
 		next:     "?offset=0&limit=20",
 		previous: "",

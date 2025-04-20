@@ -17,7 +17,7 @@ func repl(cfg config) {
 		command := cleanInput(input.Text())
 		if len(command) > 0 {
 			if comm, ok := commands[command[0]]; ok {
-				comm.callback(&cfg)
+				comm.callback(&cfg, command[1:]...)
 			} else {
 				fmt.Println("Unknown command")
 			}

@@ -16,7 +16,7 @@ type config struct {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -45,13 +45,13 @@ func getCommands() map[string]cliCommand {
 	return commands
 }
 
-func commandExit(_ *config) error {
+func commandExit(_ *config, _ ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(_ *config) error {
+func commandHelp(_ *config, _ ...string) error {
 	fmt.Print("Welcome to the Pokedex!\nUsage:\n\n")
 	commands := getCommands()
 	for _, c := range commands {
@@ -60,7 +60,7 @@ func commandHelp(_ *config) error {
 	return nil
 }
 
-func commandMap(cfg *config) error {
+func commandMap(cfg *config, _ ...string) error {
 	data, err := pokeapi.LocationGet(cfg.next, cfg.client)
 	if err != nil {
 		handleError("commandMap", err, false)
@@ -75,7 +75,7 @@ func commandMap(cfg *config) error {
 	return nil
 }
 
-func commandMapB(cfg *config) error {
+func commandMapB(cfg *config, _ ...string) error {
 	if cfg.previous == "" {
 		fmt.Println("You're on the first page!")
 		return nil

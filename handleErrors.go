@@ -6,7 +6,7 @@ import (
 )
 
 func handleError(source string, err error, fatal bool) {
-	feedbackText := fmt.Sprintf("Error in %s: %w\n", source, err)
+	feedbackText := fmt.Sprintf("Error in %s: %v\n", source, err)
 	if fatal {
 		log.Fatal(feedbackText + "Error is fatal. Escaping program.")
 	}

@@ -16,7 +16,10 @@ type Location struct {
 	} `json:"results"`
 }
 
-func apiGet(url string) ([]byte, error) {
+func apiGet(url string, client Client) ([]byte, error) {
+	if bytes, ok := client.cache.Get(url); ok {
+		return bytes, nil
+	}
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -26,13 +29,14 @@ func apiGet(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	client.cache.Add(url, body)
 	return body, nil
 }
 
 func LocationGet(url string, client Client) (Location, error) {
 
 	fullURL := baseURL + locationURL + url
-	locationJson, err := apiGet(fullURL)
+	locationJson, err := apiGet(fullURL, client)
 	if err != nil {
 		return Location{}, err
 	}
